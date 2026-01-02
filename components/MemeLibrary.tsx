@@ -53,6 +53,19 @@ export default function MemeLibrary({ onLoadMeme }: MemeLibraryProps) {
     }
   };
 
+  const handleTogglePublish = async (meme: any) => {
+    try {
+      await db.transact([
+        db.tx.memes[meme.id].update({
+          isPublic: !meme.isPublic,
+        }),
+      ]);
+    } catch (err) {
+      console.error('Failed to update meme visibility:', err);
+      alert('Failed to update meme visibility. Please try again.');
+    }
+  };
+
   if (!isAuthenticated) {
     return (
       <div className="empty-state">
@@ -111,9 +124,9 @@ export default function MemeLibrary({ onLoadMeme }: MemeLibraryProps) {
           <div className="meme-card-actions">
             <button
               className="meme-card-action-btn"
-              onClick={() => handleLoad(meme)}
+              onClick={() => handleTogglePublish(meme)}
             >
-              Load
+              {meme.isPublic ? 'Unpublish' : 'Publish'}
             </button>
             <button
               className="meme-card-action-btn danger"

@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useMemeEditor } from '@/hooks/useMemeEditor';
+import { useResizablePanel } from '@/hooks/useResizablePanel';
 import MemeCanvas from '@/components/MemeCanvas';
 import Sidebar from '@/components/Sidebar';
 import Toolbar from '@/components/Toolbar';
@@ -40,6 +41,20 @@ export default function Home() {
   } = useMemeEditor();
 
   const { isAuthenticated } = useAuth();
+  
+  // Resizable panel hook
+  const {
+    width: sidebarWidth,
+    isResizing,
+    handleMouseDown: handleResizeMouseDown,
+    handleTouchStart: handleResizeTouchStart,
+  } = useResizablePanel({
+    minWidth: 180,
+    maxWidth: 500,
+    defaultWidth: 240,
+    storageKey: 'meme-sidebar-width',
+  });
+  
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
   const [fontSize, setFontSize] = useState(40);
   const [textColor, setTextColor] = useState('#ffffff');
@@ -371,9 +386,16 @@ export default function Home() {
           onImageUpload={handleImageUpload}
           onLoadMeme={handleLoadMeme}
           activeTab={activeTab}
+          style={{ width: `${sidebarWidth}px` }}
+        />
+        
+        <div
+          className={`resize-handle ${isResizing ? 'resizing' : ''}`}
+          onMouseDown={handleResizeMouseDown}
+          onTouchStart={handleResizeTouchStart}
         />
 
-        <main className="canvas-area">
+        <main className="canvas-area" style={{ marginLeft: 0 }}>
         <MemeCanvas
           image={memeState.image}
           textBoxes={memeState.textBoxes}
@@ -412,6 +434,7 @@ export default function Home() {
         }
         onDownload={handleDownload}
         onSave={handleSave}
+        sidebarWidth={sidebarWidth}
       />
 
       {showSaveDialog && (

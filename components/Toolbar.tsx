@@ -14,6 +14,7 @@ interface ToolbarProps {
   onDeleteText: () => void;
   onDownload: () => void;
   onSave?: () => void;
+  sidebarWidth?: number;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -27,11 +28,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onDeleteText,
   onDownload,
   onSave,
+  sidebarWidth = 240,
 }) => {
   const showTextControls = selectedTextBox !== null && currentTextBox !== null;
 
   return (
-    <div className="bottom-toolbar">
+    <div className="bottom-toolbar" style={{ left: `calc(${sidebarWidth}px + var(--spacing-lg))` }}>
       <div className="toolbar-section">
         <button
           onClick={onAddText}

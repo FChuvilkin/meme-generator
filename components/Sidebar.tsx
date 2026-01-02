@@ -13,6 +13,7 @@ interface SidebarProps {
   onImageUpload: (file: File) => void;
   onLoadMeme: (imageUrl: string, textBoxes: any[]) => void;
   activeTab: TabType;
+  style?: React.CSSProperties;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -22,6 +23,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onImageUpload,
   onLoadMeme,
   activeTab,
+  style,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,7 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" style={style}>
       <div className="sidebar-content">
         {activeTab === 'templates' && (
           <>

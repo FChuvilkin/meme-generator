@@ -25,12 +25,12 @@ export const useMemeEditor = () => {
     });
   }, []);
 
-  const setImage = useCallback(async (src: string) => {
+  const setImage = useCallback(async (src: string, textBoxes?: TextBox[]) => {
     try {
       const img = await loadImage(src);
       setMemeState({
         image: img,
-        textBoxes: [],
+        textBoxes: textBoxes || [],
         selectedTextBox: null,
       });
       return img;

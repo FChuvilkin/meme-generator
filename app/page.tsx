@@ -97,23 +97,14 @@ export default function Home() {
   const handleLoadMeme = useCallback(
     async (imageUrl: string, textBoxes: TextBox[]) => {
       try {
-        await setImage(imageUrl);
+        await setImage(imageUrl, textBoxes);
         setCurrentImageUrl(imageUrl);
         setSelectedTemplate(null);
-        // Load text boxes after image is loaded
-        setTimeout(() => {
-          textBoxes.forEach((box) => {
-            addTextBox(box.x, box.y, box.fontSize, box.color);
-            // Update the text for the newly added box
-            const lastIndex = memeState.textBoxes.length;
-            updateTextBox(lastIndex, { text: box.text });
-          });
-        }, 100);
       } catch (error) {
         alert('Failed to load meme. Please try again.');
       }
     },
-    [setImage, addTextBox, updateTextBox, memeState.textBoxes.length]
+    [setImage]
   );
 
   const handleAddText = useCallback(() => {

@@ -8,65 +8,58 @@
 </head>
 <body>
     <div class="app-container">
-        <header class="app-header">
-            <h1 class="app-title">Meme Generator</h1>
-            <p class="app-subtitle">Create memes with ease</p>
-        </header>
+        <aside class="sidebar">
+            <div class="sidebar-content">
+                <div class="template-gallery" id="templateGallery"></div>
+                <label for="imageInput" class="upload-button">
+                    <input type="file" id="imageInput" accept="image/*" hidden>
+                    <span>Upload Image</span>
+                </label>
+            </div>
+        </aside>
         
-        <div class="app-content">
-            <aside class="sidebar">
-                <section class="sidebar-section">
-                    <h2 class="section-title">Templates</h2>
-                    <div class="template-gallery" id="templateGallery"></div>
-                    <label for="imageInput" class="upload-button">
-                        <input type="file" id="imageInput" accept="image/*" hidden>
-                        <span>Upload Image</span>
-                    </label>
-                </section>
-                
-                <section class="sidebar-section">
-                    <h2 class="section-title">Text</h2>
-                    <button id="addTextBtn" class="button button-primary">Add Text</button>
-                    
-                    <div class="text-controls" id="textControls" style="display: none;">
-                        <div class="form-group">
-                            <label for="textInput" class="form-label">Text Content</label>
-                            <textarea id="textInput" class="form-input form-textarea" placeholder="Enter your text (Press Enter for new line)" rows="3"></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="fontSizeSlider" class="form-label">
-                                Font Size: <span id="fontSizeValue" class="value-display">40</span>px
-                            </label>
-                            <input type="range" id="fontSizeSlider" class="slider" min="20" max="100" value="40">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="textColorPicker" class="form-label">Text Color</label>
-                            <div class="color-picker-wrapper">
-                                <input type="color" id="textColorPicker" class="color-picker" value="#ffffff">
-                            </div>
-                        </div>
-                        
-                        <button id="deleteTextBtn" class="button button-danger">Delete Text</button>
-                    </div>
-                </section>
-                
-                <section class="sidebar-section">
-                    <button id="downloadBtn" class="button button-success" disabled>Download Meme</button>
-                </section>
-            </aside>
-            
-            <main class="canvas-area">
-                <div class="canvas-wrapper">
-                    <canvas id="memeCanvas"></canvas>
-                    <div id="canvasPlaceholder" class="canvas-placeholder">
-                        <div class="placeholder-content">
-                            <p class="placeholder-text">Choose a template or upload an image to get started</p>
-                        </div>
+        <main class="canvas-area">
+            <div class="canvas-wrapper">
+                <canvas id="memeCanvas"></canvas>
+                <div id="canvasPlaceholder" class="canvas-placeholder">
+                    <div class="placeholder-content">
+                        <p class="placeholder-text">Choose a template or upload an image to get started</p>
                     </div>
                 </div>
-            </main>
+            </div>
+        </main>
+        
+        <div class="bottom-toolbar" id="bottomToolbar">
+            <div class="toolbar-section">
+                <button id="addTextBtn" class="toolbar-button toolbar-button-primary">Add Text</button>
+            </div>
+            
+            <div class="toolbar-section text-controls" id="textControls" style="display: none;">
+                <div class="toolbar-group">
+                    <label for="textInput" class="toolbar-label">Text</label>
+                    <textarea id="textInput" class="toolbar-input toolbar-textarea" placeholder="Enter your text (Press Enter for new line)" rows="1"></textarea>
+                </div>
+                
+                <div class="toolbar-group">
+                    <label for="fontSizeSlider" class="toolbar-label">
+                        Size: <span id="fontSizeValue" class="value-display">40</span>px
+                    </label>
+                    <input type="range" id="fontSizeSlider" class="toolbar-slider" min="20" max="100" value="40">
+                </div>
+                
+                <div class="toolbar-group">
+                    <label for="textColorPicker" class="toolbar-label">Color</label>
+                    <input type="color" id="textColorPicker" class="toolbar-color-picker" value="#ffffff">
+                </div>
+                
+                <div class="toolbar-group">
+                    <button id="deleteTextBtn" class="toolbar-button toolbar-button-danger">Delete</button>
+                </div>
+            </div>
+            
+            <div class="toolbar-section toolbar-section-right">
+                <button id="downloadBtn" class="toolbar-button toolbar-button-success" disabled>Download</button>
+            </div>
         </div>
     </div>
     

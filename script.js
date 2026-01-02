@@ -42,6 +42,18 @@ canvas.addEventListener('touchstart', handleTouchStart);
 canvas.addEventListener('touchmove', handleTouchMove);
 canvas.addEventListener('touchend', handleTouchEnd);
 
+// Keyboard event listener for deleting selected textbox
+document.addEventListener('keydown', function(e) {
+    // Delete textbox when Backspace or Delete is pressed and a textbox is selected
+    if ((e.key === 'Backspace' || e.key === 'Delete') && selectedTextBox !== null) {
+        // Don't delete if user is typing in the textarea
+        if (document.activeElement !== textInput) {
+            e.preventDefault();
+            deleteSelectedTextBox();
+        }
+    }
+});
+
 // Template images
 const templateImages = [
     'assets/9d4547330630963a9562c2ce895544b9.jpg',
@@ -54,6 +66,17 @@ const templateImages = [
 initializeTemplateGallery();
 
 function loadImageFromSource(src) {
+    // Clear text boxes immediately when switching templates
+    textBoxes = [];
+    selectedTextBox = null;
+    textControls.style.display = 'none';
+    textInput.value = '';
+    
+    // Clear canvas immediately to remove any previous text
+    if (canvas.width > 0 && canvas.height > 0) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    
     const img = new Image();
     img.onload = function() {
         image = img;
@@ -62,10 +85,6 @@ function loadImageFromSource(src) {
         canvasPlaceholder.classList.add('hidden');
         canvas.style.display = 'block';
         downloadBtn.disabled = false;
-        textBoxes = [];
-        selectedTextBox = null;
-        textControls.style.display = 'none';
-        textInput.value = '';
     };
     img.onerror = function() {
         alert('Failed to load image. Please try another template or upload your own image.');
@@ -112,22 +131,52 @@ function initializeTemplateGallery() {
 function setupCanvas() {
     if (!image) return;
 
-    // Set canvas size to match image, but limit max dimensions
-    const maxWidth = 800;
-    const maxHeight = 600;
+    // Calculate available space (viewport minus sidebar and floating toolbar)
+    const sidebarWidth = 240; // Match CSS variable --sidebar-width
+    const toolbarHeight = 72; // Match CSS variable --toolbar-height
+    const padding = 32; // Match canvas-wrapper padding (--spacing-xl = 2rem = 32px)
+    const toolbarSpacing = 24; // Match floating toolbar bottom spacing (--spacing-lg = 1.5rem = 24px)
     
-    let width = image.width;
-    let height = image.height;
+    const availableWidth = window.innerWidth - sidebarWidth - (padding * 2);
+    const availableHeight = window.innerHeight - toolbarHeight - toolbarSpacing - (padding * 2);
     
-    if (width > maxWidth || height > maxHeight) {
-        const ratio = Math.min(maxWidth / width, maxHeight / height);
-        width = width * ratio;
-        height = height * ratio;
+    // Calculate scale to fit available space while maintaining aspect ratio
+    const imageAspectRatio = image.width / image.height;
+    const availableAspectRatio = availableWidth / availableHeight;
+    
+    let width, height;
+    
+    if (imageAspectRatio > availableAspectRatio) {
+        // Image is wider - fit to width (scale up if image is smaller)
+        width = availableWidth;
+        height = width / imageAspectRatio;
+    } else {
+        // Image is taller - fit to height (scale up if image is smaller)
+        height = availableHeight;
+        width = height * imageAspectRatio;
+    }
+    
+    // Ensure minimum size
+    if (width < 200) {
+        width = 200;
+        height = width / imageAspectRatio;
+    }
+    if (height < 200) {
+        height = 200;
+        width = height * imageAspectRatio;
     }
     
     canvas.width = width;
     canvas.height = height;
 }
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    if (image) {
+        setupCanvas();
+        drawCanvas();
+    }
+});
 
 function drawCanvas() {
     if (!image) return;
@@ -155,7 +204,7 @@ function getTextMetrics(textBox, ctx) {
         }
     });
     
-    const lineHeight = textBox.fontSize * 1.2;
+    const lineHeight = textBox.fontSize * 1.4;
     const totalHeight = lines.length * lineHeight;
     
     return {
@@ -176,7 +225,7 @@ function drawTextBox(textBox, isSelected) {
     
     // Split text by newlines
     const lines = textBox.text.split('\n');
-    const lineHeight = textBox.fontSize * 1.2;
+    const lineHeight = textBox.fontSize * 1.4;
     const totalHeight = lines.length * lineHeight;
     
     // Calculate starting Y position (centered vertically)
@@ -206,14 +255,28 @@ function drawTextBox(textBox, isSelected) {
             }
         });
         
+        // Calculate actual text bounds based on where text is drawn
+        // With textBaseline = 'top', startY is the top of the first line
+        // Each line has fontSize height, with lineHeight spacing between them
+        const textTop = startY;
+        // For the bottom, we need the bottom of the last line
+        // The last line starts at: startY + (lines.length - 1) * lineHeight
+        // And extends down by fontSize
+        const lastLineTop = startY + (lines.length - 1) * lineHeight;
+        const textBottom = lastLineTop + textBox.fontSize;
+        const actualTextHeight = textBottom - textTop;
+        
+        // Equal padding on all sides
+        const padding = 5;
+        
         ctx.strokeStyle = '#0d9488';
         ctx.lineWidth = 2;
         ctx.setLineDash([5, 5]);
         ctx.strokeRect(
-            textBox.x - maxLineWidth / 2 - 5,
-            textBox.y - totalHeight / 2 - 5,
-            maxLineWidth + 10,
-            totalHeight + 10
+            textBox.x - maxLineWidth / 2 - padding,
+            textTop - padding,
+            maxLineWidth + (padding * 2),
+            actualTextHeight + (padding * 2)
         );
         ctx.setLineDash([]);
     }
@@ -240,7 +303,7 @@ function addTextBox() {
     
     // Update UI
     textInput.value = newTextBox.text;
-    textControls.style.display = 'block';
+    textControls.style.display = 'flex';
     updateControls();
     
     drawCanvas();
@@ -348,13 +411,27 @@ function handleMouseDown(e) {
         dragOffset.x = canvasX - textBox.x;
         dragOffset.y = canvasY - textBox.y;
         
+        textControls.style.display = 'flex';
         updateControls();
         drawCanvas();
     } else {
-        selectedTextBox = null;
-        if (textBoxes.length === 0) {
-            textControls.style.display = 'none';
-        }
+        // If no text box was clicked, create a new one at the click position
+        const newTextBox = {
+            text: 'Your text here',
+            x: canvasX,
+            y: canvasY,
+            fontSize: parseInt(fontSizeSlider.value),
+            color: textColorPicker.value
+        };
+        
+        textBoxes.push(newTextBox);
+        selectedTextBox = textBoxes.length - 1;
+        
+        // Update UI
+        textInput.value = newTextBox.text;
+        textControls.style.display = 'flex';
+        updateControls();
+        
         drawCanvas();
     }
 }
@@ -450,7 +527,7 @@ function downloadMeme() {
         
         // Split text by newlines
         const lines = textBox.text.split('\n');
-        const lineHeight = scaledFontSize * 1.2;
+        const lineHeight = scaledFontSize * 1.4;
         const totalHeight = lines.length * lineHeight;
         
         // Calculate starting Y position (centered vertically)

@@ -206,13 +206,15 @@ body {
   bottom: var(--spacing-lg);
   left: calc(var(--sidebar-width) + var(--spacing-lg));
   right: var(--spacing-lg);
-  height: var(--toolbar-height);
+  min-height: var(--toolbar-height);
+  height: auto;
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  padding: 0 var(--spacing-lg);
+  padding: var(--spacing-md) var(--spacing-lg);
   gap: var(--spacing-lg);
   box-shadow: var(--shadow-xl);
   z-index: 100;
@@ -292,8 +294,9 @@ body {
 
 .text-controls {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
 .toolbar-input {
@@ -496,6 +499,40 @@ body {
 
   .toolbar-section-right {
     margin-left: 0;
+  }
+
+  .text-controls {
+    flex-direction: column;
+    width: 100%;
+    gap: var(--spacing-sm);
+  }
+
+  .toolbar-group {
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .toolbar-textarea {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .toolbar-slider {
+    flex: 1;
+    width: auto;
+    min-width: 100px;
+  }
+
+  .toolbar-label {
+    white-space: nowrap;
+    margin-right: var(--spacing-sm);
+  }
+
+  .toolbar-color-picker {
+    flex-shrink: 0;
   }
 }
 

@@ -95,11 +95,30 @@ export default function Home() {
   );
 
   const handleLoadMeme = useCallback(
-    async (imageUrl: string, textBoxes: TextBox[]) => {
+    async (imageUrl: string, textBoxes: TextBox[], imageWidth: number, imageHeight: number) => {
       try {
-        await setImage(imageUrl, textBoxes);
+        const img = await setImage(imageUrl, []);
         setCurrentImageUrl(imageUrl);
         setSelectedTemplate(null);
+        
+        // Get the canvas element to determine current canvas size
+        const canvas = document.getElementById('memeCanvas') as HTMLCanvasElement;
+        if (canvas && img) {
+          // The loaded textBoxes are normalized to image dimensions
+          // We need to denormalize them to the current canvas size
+          const scaleX = canvas.width / img.width;
+          const scaleY = canvas.height / img.height;
+          
+          const denormalizedTextBoxes = textBoxes.map(box => ({
+            ...box,
+            x: box.x * scaleX,
+            y: box.y * scaleY,
+            fontSize: box.fontSize * scaleX,
+          }));
+          
+          // Update the meme state with denormalized text boxes
+          await setImage(imageUrl, denormalizedTextBoxes);
+        }
       } catch (error) {
         alert('Failed to load meme. Please try again.');
       }
@@ -269,6 +288,7 @@ export default function Home() {
     tempCanvas.width = memeState.image.width;
     tempCanvas.height = memeState.image.height;
 
+    // Text coordinates are in canvas space, need to convert to image space
     const scaleX = memeState.image.width / canvas.width;
     const scaleY = memeState.image.height / canvas.height;
 
@@ -398,6 +418,10 @@ export default function Home() {
         <SaveMemeDialog
           imageUrl={currentImageUrl}
           textBoxes={memeState.textBoxes}
+          canvasWidth={document.getElementById('memeCanvas')?.getAttribute('width') ? parseInt(document.getElementById('memeCanvas')!.getAttribute('width')!) : memeState.image?.width || 800}
+          canvasHeight={document.getElementById('memeCanvas')?.getAttribute('width') ? parseInt(document.getElementById('memeCanvas')!.getAttribute('height')!) : memeState.image?.height || 600}
+          imageWidth={memeState.image?.width || 800}
+          imageHeight={memeState.image?.height || 600}
           onClose={() => setShowSaveDialog(false)}
           onSaved={() => {
             alert('Meme saved successfully!');

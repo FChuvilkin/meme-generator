@@ -9,6 +9,10 @@ import { createMemeData } from '@/lib/instantdb-schema';
 interface SaveMemeDialogProps {
   imageUrl: string;
   textBoxes: TextBox[];
+  canvasWidth: number;
+  canvasHeight: number;
+  imageWidth: number;
+  imageHeight: number;
   onClose: () => void;
   onSaved?: () => void;
 }
@@ -16,6 +20,10 @@ interface SaveMemeDialogProps {
 export default function SaveMemeDialog({
   imageUrl,
   textBoxes,
+  canvasWidth,
+  canvasHeight,
+  imageWidth,
+  imageHeight,
   onClose,
   onSaved,
 }: SaveMemeDialogProps) {
@@ -42,11 +50,23 @@ export default function SaveMemeDialog({
     setError(null);
 
     try {
+      // Normalize text box coordinates to image dimensions
+      // This ensures they can be correctly scaled when displayed at any size
+      const scaleX = imageWidth / canvasWidth;
+      const scaleY = imageHeight / canvasHeight;
+      
+      const normalizedTextBoxes = textBoxes.map(box => ({
+        ...box,
+        x: box.x * scaleX,
+        y: box.y * scaleY,
+        fontSize: box.fontSize * scaleX,
+      }));
+
       const memeData = createMemeData(
         user.id,
         title.trim(),
         imageUrl,
-        textBoxes,
+        normalizedTextBoxes,
         isPublic
       );
 

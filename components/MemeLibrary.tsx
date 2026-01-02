@@ -5,9 +5,10 @@ import { db } from '@/lib/instant';
 import { useAuth } from '@/hooks/useAuth';
 import { deserializeTextBoxes } from '@/lib/instantdb-schema';
 import { SavedMeme } from '@/types';
+import MemePreview from './MemePreview';
 
 interface MemeLibraryProps {
-  onLoadMeme: (imageUrl: string, textBoxes: any[]) => void;
+  onLoadMeme: (imageUrl: string, textBoxes: any[], imageWidth: number, imageHeight: number) => void;
 }
 
 export default function MemeLibrary({ onLoadMeme }: MemeLibraryProps) {
@@ -46,7 +47,16 @@ export default function MemeLibrary({ onLoadMeme }: MemeLibraryProps) {
   const handleLoad = (meme: any) => {
     try {
       const textBoxes = deserializeTextBoxes(meme.textBoxes);
-      onLoadMeme(meme.imageUrl, textBoxes);
+      // Load the image to get its dimensions
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        onLoadMeme(meme.imageUrl, textBoxes, img.width, img.height);
+      };
+      img.onerror = () => {
+        alert('Failed to load meme image.');
+      };
+      img.src = meme.imageUrl;
     } catch (err) {
       console.error('Failed to load meme:', err);
       alert('Failed to load meme. Please try again.');
@@ -108,8 +118,9 @@ export default function MemeLibrary({ onLoadMeme }: MemeLibraryProps) {
     <div className="template-gallery">
       {memes.map((meme: any) => (
         <div key={meme.id} className="meme-card">
-          <img
-            src={meme.imageUrl}
+          <MemePreview
+            imageUrl={meme.imageUrl}
+            textBoxes={meme.textBoxes}
             alt={meme.title}
             className="meme-card-image"
             onClick={() => handleLoad(meme)}

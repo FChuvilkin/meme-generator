@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import MemeLibrary from './MemeLibrary';
 import PublicMemesFeed from './PublicMemesFeed';
+
+type TabType = 'templates' | 'my-memes' | 'community';
 
 interface SidebarProps {
   templateImages: string[];
@@ -10,9 +12,8 @@ interface SidebarProps {
   onTemplateSelect: (index: number, src: string) => void;
   onImageUpload: (file: File) => void;
   onLoadMeme: (imageUrl: string, textBoxes: any[]) => void;
+  activeTab: TabType;
 }
-
-type TabType = 'templates' | 'my-memes' | 'community';
 
 export const Sidebar: React.FC<SidebarProps> = ({
   templateImages,
@@ -20,9 +21,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onTemplateSelect,
   onImageUpload,
   onLoadMeme,
+  activeTab,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('templates');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -34,27 +35,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <aside className="sidebar">
       <div className="sidebar-content">
-        <div className="sidebar-tabs">
-          <button
-            className={`sidebar-tab ${activeTab === 'templates' ? 'active' : ''}`}
-            onClick={() => setActiveTab('templates')}
-          >
-            Templates
-          </button>
-          <button
-            className={`sidebar-tab ${activeTab === 'my-memes' ? 'active' : ''}`}
-            onClick={() => setActiveTab('my-memes')}
-          >
-            My Memes
-          </button>
-          <button
-            className={`sidebar-tab ${activeTab === 'community' ? 'active' : ''}`}
-            onClick={() => setActiveTab('community')}
-          >
-            Community
-          </button>
-        </div>
-
         {activeTab === 'templates' && (
           <>
             <div className="template-gallery">

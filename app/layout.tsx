@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import AuthButton from '@/components/AuthButton';
+import HeaderWithTabs from '@/components/HeaderWithTabs';
 
 export const metadata: Metadata = {
   title: 'Meme Generator',
@@ -15,10 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <header className="app-header">
-          <h1 className="app-title">Meme Generator</h1>
-          <AuthButton />
-        </header>
+        <HeaderWithTabs />
         {children}
       </body>
     </html>

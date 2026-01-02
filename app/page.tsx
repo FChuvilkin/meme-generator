@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useMemeEditor } from '@/hooks/useMemeEditor';
 import MemeCanvas from '@/components/MemeCanvas';
 import Sidebar from '@/components/Sidebar';
@@ -8,6 +8,16 @@ import Toolbar from '@/components/Toolbar';
 import SaveMemeDialog from '@/components/SaveMemeDialog';
 import { useAuth } from '@/hooks/useAuth';
 import { TextBox } from '@/types';
+
+type TabType = 'templates' | 'my-memes' | 'community';
+
+// Event system for communicating tab changes to header
+const TAB_CHANGE_EVENT = 'meme-tab-change';
+declare global {
+  interface WindowEventMap {
+    'meme-tab-change': CustomEvent<{ tab: TabType }>;
+  }
+}
 
 const TEMPLATE_IMAGES = [
   '/assets/9d4547330630963a9562c2ce895544b9.jpg',
@@ -35,7 +45,23 @@ export default function Home() {
   const [textColor, setTextColor] = useState('#ffffff');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<TabType>('templates');
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // Dispatch tab change event for header to listen to
+  useEffect(() => {
+    const event = new CustomEvent('meme-tab-change', { detail: { tab: activeTab } });
+    window.dispatchEvent(event);
+  }, [activeTab]);
+
+  // Listen for tab changes from header
+  useEffect(() => {
+    const handleTabChange = (event: CustomEvent<{ tab: TabType }>) => {
+      setActiveTab(event.detail.tab);
+    };
+    window.addEventListener('meme-tab-change', handleTabChange);
+    return () => window.removeEventListener('meme-tab-change', handleTabChange);
+  }, []);
 
   const handleTemplateSelect = useCallback(
     async (index: number, src: string) => {
@@ -326,15 +352,17 @@ export default function Home() {
 
   return (
     <div className="app-container">
-      <Sidebar
-        templateImages={TEMPLATE_IMAGES}
-        selectedTemplate={selectedTemplate}
-        onTemplateSelect={handleTemplateSelect}
-        onImageUpload={handleImageUpload}
-        onLoadMeme={handleLoadMeme}
-      />
+      <div className="app-main-content">
+        <Sidebar
+          templateImages={TEMPLATE_IMAGES}
+          selectedTemplate={selectedTemplate}
+          onTemplateSelect={handleTemplateSelect}
+          onImageUpload={handleImageUpload}
+          onLoadMeme={handleLoadMeme}
+          activeTab={activeTab}
+        />
 
-      <main className="canvas-area">
+        <main className="canvas-area">
         <MemeCanvas
           image={memeState.image}
           textBoxes={memeState.textBoxes}
@@ -346,7 +374,8 @@ export default function Home() {
           onTouchMove={handleTouchMove}
           onTouchEnd={stopDrag}
         />
-      </main>
+        </main>
+      </div>
 
       <Toolbar
         image={memeState.image}

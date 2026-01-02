@@ -1,0 +1,33 @@
+# Meme Generator - Next.js Project
+
+This is a Next.js-based meme generator application refactored from vanilla JavaScript.
+
+## Architecture
+
+- **Framework**: Next.js 14 with App Router
+- **Language**: TypeScript
+- **Styling**: CSS with CSS Variables for theming
+- **State Management**: Custom React hooks
+
+## Key Components
+
+1. **app/page.tsx**: Main page component orchestrating the meme editor
+2. **components/MemeCanvas.tsx**: Canvas rendering component
+3. **components/Sidebar.tsx**: Template gallery and image upload
+4. **components/Toolbar.tsx**: Text editing controls
+5. **hooks/useMemeEditor.ts**: Custom hook managing meme state
+6. **types/index.ts**: TypeScript type definitions
+
+## Development Guidelines
+
+- Use functional components with hooks
+- Maintain type safety with TypeScript
+- Keep components modular and reusable
+- Use CSS variables for consistent theming
+- Handle both mouse and touch events for mobile support
+
+## Asset Management
+
+- Store static assets in `public/assets/`
+- Reference assets with absolute paths starting with `/`
+

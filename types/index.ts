@@ -17,3 +17,14 @@ export interface DragState {
   offset: { x: number; y: number };
 }
 
+export interface SavedMeme {
+  id: string;
+  userId: string;
+  title: string;
+  imageUrl: string;
+  textBoxes: TextBox[];
+  isPublic: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+

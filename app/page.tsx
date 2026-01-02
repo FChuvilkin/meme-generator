@@ -5,6 +5,9 @@ import { useMemeEditor } from '@/hooks/useMemeEditor';
 import MemeCanvas from '@/components/MemeCanvas';
 import Sidebar from '@/components/Sidebar';
 import Toolbar from '@/components/Toolbar';
+import SaveMemeDialog from '@/components/SaveMemeDialog';
+import { useAuth } from '@/hooks/useAuth';
+import { TextBox } from '@/types';
 
 const TEMPLATE_IMAGES = [
   '/assets/9d4547330630963a9562c2ce895544b9.jpg',
@@ -26,9 +29,12 @@ export default function Home() {
     stopDrag,
   } = useMemeEditor();
 
+  const { isAuthenticated } = useAuth();
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
   const [fontSize, setFontSize] = useState(40);
   const [textColor, setTextColor] = useState('#ffffff');
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [currentImageUrl, setCurrentImageUrl] = useState<string>('');
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const handleTemplateSelect = useCallback(
@@ -36,6 +42,7 @@ export default function Home() {
       try {
         await setImage(src);
         setSelectedTemplate(index);
+        setCurrentImageUrl(src);
       } catch (error) {
         alert('Failed to load template. Please try another one.');
       }
@@ -48,8 +55,10 @@ export default function Home() {
       const reader = new FileReader();
       reader.onload = async (event) => {
         try {
-          await setImage(event.target?.result as string);
+          const dataUrl = event.target?.result as string;
+          await setImage(dataUrl);
           setSelectedTemplate(null);
+          setCurrentImageUrl(dataUrl);
         } catch (error) {
           alert('Failed to load image. Please try another one.');
         }
@@ -57,6 +66,28 @@ export default function Home() {
       reader.readAsDataURL(file);
     },
     [setImage]
+  );
+
+  const handleLoadMeme = useCallback(
+    async (imageUrl: string, textBoxes: TextBox[]) => {
+      try {
+        await setImage(imageUrl);
+        setCurrentImageUrl(imageUrl);
+        setSelectedTemplate(null);
+        // Load text boxes after image is loaded
+        setTimeout(() => {
+          textBoxes.forEach((box) => {
+            addTextBox(box.x, box.y, box.fontSize, box.color);
+            // Update the text for the newly added box
+            const lastIndex = memeState.textBoxes.length;
+            updateTextBox(lastIndex, { text: box.text });
+          });
+        }, 100);
+      } catch (error) {
+        alert('Failed to load meme. Please try again.');
+      }
+    },
+    [setImage, addTextBox, updateTextBox, memeState.textBoxes.length]
   );
 
   const handleAddText = useCallback(() => {
@@ -72,6 +103,20 @@ export default function Home() {
       addTextBox(x, y, fontSize, textColor);
     }
   }, [memeState.image, addTextBox, fontSize, textColor]);
+
+  const handleSave = useCallback(() => {
+    if (!isAuthenticated) {
+      alert('Please sign in to save memes');
+      return;
+    }
+
+    if (!memeState.image || !currentImageUrl) {
+      alert('Please create a meme first!');
+      return;
+    }
+
+    setShowSaveDialog(true);
+  }, [isAuthenticated, memeState.image, currentImageUrl]);
 
   const getTextBoxAt = useCallback(
     (canvasX: number, canvasY: number): number | null => {
@@ -286,6 +331,7 @@ export default function Home() {
         selectedTemplate={selectedTemplate}
         onTemplateSelect={handleTemplateSelect}
         onImageUpload={handleImageUpload}
+        onLoadMeme={handleLoadMeme}
       />
 
       <main className="canvas-area">
@@ -325,7 +371,19 @@ export default function Home() {
           memeState.selectedTextBox !== null && deleteTextBox(memeState.selectedTextBox)
         }
         onDownload={handleDownload}
+        onSave={handleSave}
       />
+
+      {showSaveDialog && (
+        <SaveMemeDialog
+          imageUrl={currentImageUrl}
+          textBoxes={memeState.textBoxes}
+          onClose={() => setShowSaveDialog(false)}
+          onSaved={() => {
+            alert('Meme saved successfully!');
+          }}
+        />
+      )}
     </div>
   );
 }

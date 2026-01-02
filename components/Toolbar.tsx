@@ -13,6 +13,7 @@ interface ToolbarProps {
   onColorChange: (color: string) => void;
   onDeleteText: () => void;
   onDownload: () => void;
+  onSave?: () => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -25,6 +26,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onColorChange,
   onDeleteText,
   onDownload,
+  onSave,
 }) => {
   const showTextControls = selectedTextBox !== null && currentTextBox !== null;
 
@@ -96,6 +98,15 @@ export const Toolbar: React.FC<ToolbarProps> = ({
       )}
 
       <div className="toolbar-section toolbar-section-right">
+        {onSave && (
+          <button
+            onClick={onSave}
+            className="toolbar-button toolbar-button-primary"
+            disabled={!image}
+          >
+            Save
+          </button>
+        )}
         <button
           onClick={onDownload}
           className="toolbar-button toolbar-button-success"

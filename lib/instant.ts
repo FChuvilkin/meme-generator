@@ -23,6 +23,7 @@ type Schema = {
 // Initialize InstantDB with your app ID
 const APP_ID = '9e5e153c-43d3-4ce9-b32d-7167a34d5e7c';
 
+// @ts-ignore - InstantDB schema type inference issue
 export const db = init<Schema>({ appId: APP_ID });
 
 // Export the id function for generating unique IDs

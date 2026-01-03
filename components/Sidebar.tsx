@@ -11,7 +11,7 @@ interface SidebarProps {
   selectedTemplate: number | null;
   onTemplateSelect: (index: number, src: string) => void;
   onImageUpload: (file: File) => void;
-  onLoadMeme: (imageUrl: string, textBoxes: any[]) => void;
+  onLoadMeme: (imageUrl: string, textBoxes: any[], imageWidth: number, imageHeight: number) => void;
   activeTab: TabType;
   style?: React.CSSProperties;
 }

@@ -10,6 +10,7 @@ interface PublicMemesFeedProps {
 }
 
 export default function PublicMemesFeed({ onLoadMeme }: PublicMemesFeedProps) {
+  // @ts-ignore - InstantDB type inference issue
   const { data, isLoading, error } = db.useQuery({
     memes: {
       $: {
@@ -61,6 +62,7 @@ export default function PublicMemesFeed({ onLoadMeme }: PublicMemesFeedProps) {
     );
   }
 
+  // @ts-ignore - InstantDB type inference issue
   const memes = data?.memes || [];
 
   if (memes.length === 0) {

@@ -6,6 +6,7 @@ import { db, id } from './instant';
 
 export async function testConnection() {
   try {
+    // @ts-ignore - InstantDB type inference issue
     const result = await db.queryOnce({ memes: {} });
     return { success: true, data: result };
   } catch (error) {
@@ -24,6 +25,7 @@ export async function testAuth() {
 export async function testWrite(userId: string, testData: any) {
   try {
     const memeId = id();
+    // @ts-ignore - InstantDB type inference issue
     await db.transact([db.tx.memes[memeId].update(testData)]);
     return { success: true, id: memeId };
   } catch (error) {
@@ -33,6 +35,7 @@ export async function testWrite(userId: string, testData: any) {
 
 export async function testRead(memeId: string) {
   try {
+    // @ts-ignore - InstantDB type inference issue
     const result = await db.queryOnce({
       memes: {
         $: {
@@ -50,6 +53,7 @@ export async function testRead(memeId: string) {
 
 export async function testDelete(memeId: string) {
   try {
+    // @ts-ignore - InstantDB type inference issue
     await db.transact([db.tx.memes[memeId].delete()]);
     return { success: true };
   } catch (error) {

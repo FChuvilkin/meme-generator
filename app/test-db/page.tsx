@@ -50,6 +50,7 @@ export default function TestDBPage() {
         false
       );
 
+      // @ts-ignore - InstantDB type inference issue
       await db.transact([db.tx.memes[testMemeId].update(testMeme)]);
       addResult(`Write test: PASSED - Test meme created with ID: ${testMemeId}`, true);
 
@@ -59,6 +60,7 @@ export default function TestDBPage() {
       // Wait a moment for the data to sync
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
+      // @ts-ignore - InstantDB type inference issue
       const queryResult = await db.queryOnce({
         memes: {
           $: {
@@ -69,6 +71,7 @@ export default function TestDBPage() {
         },
       });
 
+      // @ts-ignore - InstantDB type inference issue
       if (queryResult.memes && queryResult.memes.length > 0) {
         addResult('Read test: PASSED - Successfully queried the test meme', true);
       } else {
@@ -84,6 +87,7 @@ export default function TestDBPage() {
 
       // Test 5: Privacy test
       addResult('Testing privacy (private memes)...', true);
+      // @ts-ignore - InstantDB type inference issue
       const privateMemeQuery = await db.queryOnce({
         memes: {
           $: {
@@ -95,12 +99,14 @@ export default function TestDBPage() {
         },
       });
       addResult(
+        // @ts-ignore - InstantDB type inference issue
         `Privacy test: PASSED - Found ${privateMemeQuery.memes?.length || 0} private memes`,
         true
       );
 
       // Test 6: Public sharing test
       addResult('Testing public memes query...', true);
+      // @ts-ignore - InstantDB type inference issue
       const publicMemeQuery = await db.queryOnce({
         memes: {
           $: {
@@ -111,12 +117,14 @@ export default function TestDBPage() {
         },
       });
       addResult(
+        // @ts-ignore - InstantDB type inference issue
         `Public sharing test: PASSED - Found ${publicMemeQuery.memes?.length || 0} public memes`,
         true
       );
 
       // Test 7: Delete test - Clean up the test meme
       addResult('Testing delete operation...', true);
+      // @ts-ignore - InstantDB type inference issue
       await db.transact([db.tx.memes[testMemeId].delete()]);
       addResult('Delete test: PASSED - Test meme deleted successfully', true);
 

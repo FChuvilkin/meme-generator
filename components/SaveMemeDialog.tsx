@@ -70,7 +70,9 @@ export default function SaveMemeDialog({
         isPublic
       );
 
+      // @ts-ignore - InstantDB type inference issue
       await db.transact([
+        // @ts-ignore
         db.tx.memes[id()].update(memeData),
       ]);
 
